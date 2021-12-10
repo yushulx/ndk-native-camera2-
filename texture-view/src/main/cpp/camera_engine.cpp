@@ -77,7 +77,7 @@ CameraAppEngine::~CameraAppEngine() {
 void CameraAppEngine::CreateCameraSession(jobject surface) {
   surface_ = env_->NewGlobalRef(surface);
 
-//  yuvReader_ = new ImageReader(&compatibleCameraRes_, AIMAGE_FORMAT_YUV_420_888);
+  yuvReader_ = new ImageReader(&compatibleCameraRes_, AIMAGE_FORMAT_YUV_420_888);
 //  yuvReader_->SetPresentRotation(GetCameraSensorOrientation(ACAMERA_LENS_FACING_BACK));
 //  yuvReader_->SetUIWindow(ANativeWindow_fromSurface(env_, surface));
   jpgReader_ = new ImageReader(&compatibleCameraRes_, AIMAGE_FORMAT_JPEG);
@@ -86,6 +86,7 @@ void CameraAppEngine::CreateCameraSession(jobject surface) {
       reinterpret_cast<CameraAppEngine* >(ctx)->OnQRDetected(str);
   });
   camera_->CreateSession(ANativeWindow_fromSurface(env_, surface), jpgReader_->GetNativeWindow(), false, GetCameraSensorOrientation(ACAMERA_LENS_FACING_BACK));
+//  camera_->CreateSession(ANativeWindow_fromSurface(env_, surface), yuvReader_->GetNativeWindow());
 }
 
 /**

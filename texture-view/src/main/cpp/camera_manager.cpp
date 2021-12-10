@@ -287,10 +287,9 @@ void NDKCamera::CreateSession(ANativeWindow* previewWindow,
 void NDKCamera::CreateSession(ANativeWindow* previewWindow, ANativeWindow* yuvWindow) {
     // Create output from this app's ANativeWindow, and add into output container
     requests_[PREVIEW_REQUEST_IDX].outputNativeWindow_ = previewWindow;
-//    requests_[PREVIEW_REQUEST_IDX].yuvWindow = outputWindow;
     requests_[PREVIEW_REQUEST_IDX].template_ = TEMPLATE_PREVIEW;
     requests_[YUV_REQUEST_IDX].outputNativeWindow_ = yuvWindow;
-    requests_[YUV_REQUEST_IDX].template_ = TEMPLATE_RECORD;
+    requests_[YUV_REQUEST_IDX].template_ = TEMPLATE_PREVIEW;
 
     CALL_CONTAINER(create(&outputContainer_));
     for (auto& req : requests_) {
