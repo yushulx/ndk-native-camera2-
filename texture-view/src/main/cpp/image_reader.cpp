@@ -529,10 +529,10 @@ void ImageReader::DecodeImage(AImage* image) {
     for (int index = 0; index < count; index++)
     {
       //        LocalizationResult* localizationResult = results[index]->localizationResult;
-      out += "Index: " + std::to_string(index);
+      out += "Index: " + std::to_string(index) + "\n";;
       out += "Barcode format: " + std::string(results[index]->barcodeFormatString) + "\n";
       out += "Barcode value: " + std::string(results[index]->barcodeText) + "\n";
-      out += "----------------------------------------------------------------------------------------\n";
+      out += "\n";
 
     }
     DBR_FreeTextResults(&handler);

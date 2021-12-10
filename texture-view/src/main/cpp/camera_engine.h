@@ -54,7 +54,7 @@ class CameraAppEngine {
   ImageReader* yuvReader_;
   ImageReader* jpgReader_;
   jclass globalClass;
-
+  JavaVM* jvm;
   void OnQRDetected(const char* result);
 };
 #endif  // __CAMERA_ENGINE_H__

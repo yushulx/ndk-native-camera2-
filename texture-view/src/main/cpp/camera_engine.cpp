@@ -32,8 +32,9 @@ CameraAppEngine::CameraAppEngine(JNIEnv* env, jobject instance, jint w, jint h)
       camera_(nullptr),
       yuvReader_(nullptr),
       jpgReader_(nullptr),
-      globalClass (nullptr) {
-
+      globalClass (nullptr),
+      jvm (nullptr) {
+  env->GetJavaVM(&jvm);
   javaInstance_ = reinterpret_cast<jclass>(env->NewGlobalRef(instance));
   jclass localClass = env_->GetObjectClass(javaInstance_);
   globalClass = reinterpret_cast<jclass>(env->NewGlobalRef(localClass));
@@ -120,17 +121,14 @@ int CameraAppEngine::GetCameraSensorOrientation(int32_t requestFacing) {
 void CameraAppEngine::StartPreview(bool start) { camera_->StartPreview(start); }
 
 void CameraAppEngine::OnQRDetected(const char *result) {
-//  JavaVM* jvm;
-//  env_->GetJavaVM(&jvm);
-//
-//  jvm->AttachCurrentThread(&env_, nullptr);
-//
-//  // Default class retrieval
-//  jmethodID methodID = env_->GetMethodID(globalClass, "onQRDetected", "(Ljava/lang/String;)V");
-//  jstring javaName = env_->NewStringUTF(result);
-//
-//  env_->CallVoidMethod(javaInstance_, methodID, javaName);
-//  jvm->DetachCurrentThread();
+  JNIEnv* env;
+
+  jvm->AttachCurrentThread(&env, nullptr);
+  jmethodID methodID = env->GetMethodID(globalClass, "onQRDetected", "(Ljava/lang/String;)V");
+  jstring javaName = env->NewStringUTF(result);
+
+  env->CallVoidMethod(javaInstance_, methodID, javaName);
+  jvm->DetachCurrentThread();
 }
 
 void CameraAppEngine::scanPhoto(void)
