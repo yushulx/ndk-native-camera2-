@@ -37,9 +37,13 @@ import android.view.View;
 import android.util.Size;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import static android.hardware.camera2.CameraMetadata.LENS_FACING_BACK;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ViewActivity extends Activity
         implements TextureView.SurfaceTextureListener,
@@ -49,12 +53,16 @@ public class ViewActivity extends Activity
     ImageButton _takePhoto;
     Surface surface_ = null;
     private Size cameraPreviewSize_;
+    Timer timer;
+    TextView textView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         onWindowFocusChanged(true);
         setContentView(R.layout.activity_main);
+        timer = new Timer();
+        textView = findViewById(R.id.textView);
         _takePhoto = (ImageButton)findViewById(R.id.takePhoto);
         _takePhoto.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -122,6 +130,7 @@ public class ViewActivity extends Activity
                 cameraPreviewSize_.getHeight());
         surface_ = new Surface(surface);
         onPreviewSurfaceCreated(ndkCamera_, surface_);
+        scheduleTask();
     }
 
     private void resizeTextureView(int textureWidth, int textureHeight) {
@@ -199,6 +208,17 @@ public class ViewActivity extends Activity
 
     private static final int PERMISSION_REQUEST_CODE_CAMERA = 1;
 
+    public void scheduleTask() {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (ndkCamera_ != 0 && surface_ != null) {
+                    scanPhoto(ndkCamera_);
+                }
+            }
+        }, 0);
+    }
+
     public void RequestCamera() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) !=
                 PackageManager.PERMISSION_GRANTED) {
@@ -257,13 +277,15 @@ public class ViewActivity extends Activity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(getApplicationContext(),
-                        content, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(),
+//                        content, Toast.LENGTH_SHORT).show();
+                textView.setText(content);
+                scheduleTask();
             }
         });
     }
 
-//    private native void scanVideo(long ndkCamera);
+//    private native void scanVideo(long ndkCamera, Surface surface);
     private native void scanPhoto(long ndkCamera);
 
     private native long createCamera(int width, int height);
