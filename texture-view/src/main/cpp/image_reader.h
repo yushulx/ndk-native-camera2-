@@ -103,6 +103,8 @@ class ImageReader {
    * @param callback is the actual callback function
    */
   void RegisterCallback(void* ctx, std::function<void(void* ctx, const char* fileName)>);
+
+  void DecodeFrame(ANativeWindow* window);
  private:
   int32_t presentRotation_;
   AImageReader* reader_;
@@ -121,6 +123,7 @@ class ImageReader {
   void *barcode_reader;
   void DecodeImage(AImage* image);
   ANativeWindow* window_;
+  int width, height;
 };
 
 #endif  // CAMERA_IMAGE_READER_H

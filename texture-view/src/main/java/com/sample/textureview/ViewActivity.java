@@ -214,6 +214,7 @@ public class ViewActivity extends Activity
             public void run() {
                 if (ndkCamera_ != 0 && surface_ != null) {
                     scanPhoto(ndkCamera_);
+//                    scanVideo(ndkCamera_, surface_);
                 }
             }
         }, 0);
@@ -285,7 +286,7 @@ public class ViewActivity extends Activity
         });
     }
 
-//    private native void scanVideo(long ndkCamera, Surface surface);
+    private native void scanVideo(long ndkCamera, Surface surface);
     private native void scanPhoto(long ndkCamera);
 
     private native long createCamera(int width, int height);

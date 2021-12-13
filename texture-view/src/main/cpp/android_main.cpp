@@ -35,6 +35,17 @@
 CameraAppEngine *pEngineObj = nullptr;
 
 extern "C" JNIEXPORT void JNICALL
+Java_com_sample_textureview_ViewActivity_scanVideo(
+        JNIEnv *env, jobject instance, jlong ndkCameraObj, jobject surface) {
+  CameraAppEngine *pApp = reinterpret_cast<CameraAppEngine *>(ndkCameraObj);
+  ANativeWindow * window = ANativeWindow_fromSurface(env, surface);
+  ASSERT(ndkCameraObj && pEngineObj == pApp,
+         "NativeObject should not be null Pointer");
+  pApp->scanVideo(window);
+}
+
+
+extern "C" JNIEXPORT void JNICALL
 Java_com_sample_textureview_ViewActivity_scanPhoto(JNIEnv *env,
                                                       jobject instance, jlong ndkCameraObj) {
 

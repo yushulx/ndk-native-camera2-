@@ -42,6 +42,7 @@ class CameraAppEngine {
   jobject GetSurfaceObject();
 
   void scanPhoto(void);
+  void scanVideo(ANativeWindow* window);
 
  private:
   JNIEnv* env_;

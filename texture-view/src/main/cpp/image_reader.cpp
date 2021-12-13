@@ -58,7 +58,8 @@ ImageReader::ImageReader(ImageFormat *res, enum AIMAGE_FORMATS format)
     : presentRotation_(0), reader_(nullptr) {
   callback_ = nullptr;
   callbackCtx_ = nullptr;
-
+  width = res->width;
+  height = res->height;
   media_status_t status = AImageReader_new(res->width, res->height, format,
                                            MAX_BUF_COUNT, &reader_);
   ASSERT(reader_ && status == AMEDIA_OK, "Failed to create AImageReader");
@@ -70,7 +71,7 @@ ImageReader::ImageReader(ImageFormat *res, enum AIMAGE_FORMATS format)
 
   // Create barcode reader
   barcode_reader = DBR_CreateInstance();
-  DBR_InitLicense(barcode_reader, "t0068NQAAADX2QmfruW5EonmMyujx6OqPy5uhext7hx+sbVbWXOAbDHXUWHKzsZ4mYk0nJZc4CO+P8dZ1rwtpcRFWIMzDNls=");
+  DBR_InitLicense(barcode_reader, "LICENSE-KEY"); // https://www.dynamsoft.com/customer/license/trialLicense?product=dbr
 }
 
 ImageReader::~ImageReader() {
@@ -500,6 +501,58 @@ void ImageReader::DrawFrame(void) {
   DisplayImage(&buf, image);
   ANativeWindow_unlockAndPost(window_);
   ANativeWindow_release(window_);
+}
+
+void ImageReader::DecodeFrame(ANativeWindow* window) {
+  if (!window_) return;
+
+  unsigned char *buffer = NULL;
+  int stride = 0, size = 0;
+  ANativeWindow_acquire(window);
+  ANativeWindow_setBuffersGeometry(window, width, height,AIMAGE_FORMAT_RGBA_8888);
+  ANativeWindow_Buffer buf;
+  if (ANativeWindow_lock(window, &buf, nullptr) < 0) {
+    return;
+  }
+
+  // copy buffer
+  stride = buf.stride;
+  size = stride * height * 4;
+  buffer = (unsigned char*)calloc(size, sizeof (unsigned ));
+  memcpy(buffer, buf.bits, size);
+
+  ANativeWindow_unlockAndPost(window);
+  ANativeWindow_release(window);
+
+  // decode buffer
+  DBR_DecodeBuffer(barcode_reader, buffer, width, height, stride, IPF_ARGB_8888, "");
+  TextResultArray *handler = NULL;
+  DBR_GetAllTextResults(barcode_reader, &handler);
+  TextResult **results = handler->results;
+  int count = handler->resultsCount;
+  std::string out = "No QR Detected";
+  if (count > 0)
+  {
+    out = "";
+    for (int index = 0; index < count; index++)
+    {
+      //        LocalizationResult* localizationResult = results[index]->localizationResult;
+      out += "Index: " + std::to_string(index) + "\n";;
+      out += "Barcode format: " + std::string(results[index]->barcodeFormatString) + "\n";
+      out += "Barcode value: " + std::string(results[index]->barcodeText) + "\n";
+      out += "\n";
+
+    }
+    DBR_FreeTextResults(&handler);
+  }
+
+  // release buffer
+  free(buffer);
+
+  if (callback_) {
+    LOGI("QR detection %s ", out.c_str());
+    callback_(callbackCtx_, out.c_str());
+  }
 }
 
 void ImageReader::SetUIWindow(ANativeWindow* window)
