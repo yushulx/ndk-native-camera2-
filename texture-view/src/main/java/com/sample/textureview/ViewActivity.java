@@ -213,7 +213,7 @@ public class ViewActivity extends Activity
             @Override
             public void run() {
                 if (ndkCamera_ != 0 && surface_ != null) {
-                    scanPhoto(ndkCamera_);
+//                    scanPhoto(ndkCamera_);
 //                    scanVideo(ndkCamera_, surface_);
                 }
             }

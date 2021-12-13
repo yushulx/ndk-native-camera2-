@@ -291,7 +291,7 @@ void NDKCamera::CreateSession(ANativeWindow* previewWindow, ANativeWindow* yuvWi
     requests_[YUV_REQUEST_IDX].outputNativeWindow_ = yuvWindow;
     requests_[YUV_REQUEST_IDX].template_ = TEMPLATE_PREVIEW;
 
-    CALL_CONTAINER(create(&outputContainer_));
+    ACaptureSessionOutputContainer_create(&outputContainer_);
     for (auto& req : requests_) {
         if (!req.outputNativeWindow_) continue;
         CALL_DEV(createCaptureRequest(cameras_[activeCameraId_].device_,
@@ -301,7 +301,7 @@ void NDKCamera::CreateSession(ANativeWindow* previewWindow, ANativeWindow* yuvWi
         CALL_OUTPUT(create(req.outputNativeWindow_, &req.sessionOutput_));
         CALL_CONTAINER(add(outputContainer_, req.sessionOutput_));
         CALL_TARGET(create(req.outputNativeWindow_, &req.target_));
-        CALL_REQUEST(addTarget(req.request_, req.target_));
+        ACaptureRequest_addTarget(req.request_, req.target_);
 
 //        ANativeWindow_acquire(req.yuvWindow);
 //        CALL_OUTPUT(create(req.yuvWindow, &req.yuvOutput));
@@ -317,9 +317,9 @@ void NDKCamera::CreateSession(ANativeWindow* previewWindow, ANativeWindow* yuvWi
 
     // Create a capture session for the given preview request
     captureSessionState_ = CaptureSessionState::READY;
-    CALL_DEV(createCaptureSession(cameras_[activeCameraId_].device_,
+    ACameraDevice_createCaptureSession(cameras_[activeCameraId_].device_,
                                   outputContainer_, GetSessionListener(),
-                                  &captureSession_));
+                                  &captureSession_);
 
 //  uint8_t aeModeOff = ACAMERA_CONTROL_AE_MODE_ON;
 //  int fps[2]  = {60, 60};
@@ -477,9 +477,9 @@ void NDKCamera::StartPreview(bool start) {
 //                                     requests,
 //                                     nullptr));
 //    ACaptureRequest* requests[] = { requests_[YUV_REQUEST_IDX].request_};
-    CALL_SESSION(setRepeatingRequest(captureSession_, nullptr, 1,
+    ACameraCaptureSession_setRepeatingRequest(captureSession_, nullptr, 1,
                                      requests,
-                                     nullptr));
+                                     nullptr);
   } else if (!start && captureSessionState_ == CaptureSessionState::ACTIVE) {
     ACameraCaptureSession_stopRepeating(captureSession_);
   }
